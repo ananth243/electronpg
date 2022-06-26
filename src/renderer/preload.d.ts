@@ -1,5 +1,4 @@
 import { Channels } from 'main/preload';
-import { User } from '../utilities/db';
 
 declare global {
   interface Window {

@@ -8,11 +8,11 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
+import path, { join } from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { readFile } from 'fs/promises';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import { User } from '../utilities/db';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -31,27 +31,14 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', 'App served by electron!');
 });
 
-ipcMain.on('insertUser', async (event, args) => {
-  const { name } = args[0];
+ipcMain.on('get-data', async (event, args) => {
   try {
-    const user = await User.create(
-      {
-        name,
-      },
-      { raw: false }
+    const { data } = JSON.parse(
+      (await readFile(join(__dirname, 'db.json'))).toString()
     );
-    event.reply('done', JSON.parse(JSON.stringify(user)));
-  } catch (e) {
-    console.error(e);
-  }
-});
-
-ipcMain.on('fetchUsers', async (event) => {
-  try {
-    const users: User[] = await User.findAll({ raw: false });
-    event.reply('receivedUsers', JSON.parse(JSON.stringify(users)));
-  } catch (e) {
-    console.error(e);
+    event.reply('sent-data', data);
+  } catch (error) {
+    console.error(error);
   }
 });
 
