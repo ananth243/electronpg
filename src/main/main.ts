@@ -13,9 +13,9 @@ import { format } from 'url';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { Data } from '../utilities/db';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { data } from './mock';
 
 class AppUpdater {
   constructor() {
@@ -33,7 +33,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('get-data', async (event, args) => {
-  event.reply('sent-data', data);
+  const data = await Data.findAll();
+  event.reply('sent-data', JSON.parse(JSON.stringify(data)));
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -141,6 +142,7 @@ const createWindow = async () => {
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
+      mainWindow.maximize();
       mainWindow.show();
     }
   });
@@ -152,7 +154,7 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow, createAddWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
+  // Open urls in the Data's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
     return { action: 'deny' };

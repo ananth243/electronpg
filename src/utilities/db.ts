@@ -8,6 +8,7 @@ import {
 } from 'sequelize';
 import pg from 'pg';
 import { DB, USERNAME, PASSWORD, DIALECT } from './keys';
+import { data } from './mock';
 
 const sequelize =
   DIALECT === 'mysql'
@@ -32,28 +33,62 @@ async function connectDb() {
 
 connectDb();
 
-export class User extends Model<
-  InferAttributes<User>,
-  InferCreationAttributes<User>
+export class Data extends Model<
+  InferAttributes<Data>,
+  InferCreationAttributes<Data>
 > {
-  declare name: string;
+  declare college: string;
+
+  declare address: string;
+
+  declare university: string;
+
+  declare district: string;
+
+  declare date: Date;
+
+  declare students: number;
 
   declare id: CreationOptional<number>;
 }
 
-User.init(
+Data.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    college: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    university: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    district: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    students: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   },
   {
-    tableName: 'users',
+    tableName: 'data',
     sequelize,
   }
 );
+
+// console.log('Populating db');
+// Data.bulkCreate(data);
