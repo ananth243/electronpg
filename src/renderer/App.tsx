@@ -10,7 +10,7 @@ import {
   ChakraProvider,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 interface Data {
   college: string;
@@ -90,6 +90,7 @@ export default function App() {
       <ChakraProvider>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/modal" element={<h1>Modal Page</h1>} />
         </Routes>
       </ChakraProvider>
     </Router>

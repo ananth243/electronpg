@@ -14,8 +14,11 @@ interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
 
-  constructor(mainWindow: BrowserWindow) {
+  createAddWindow: () => Promise<void>;
+
+  constructor(mainWindow: BrowserWindow, createAddWindow: () => Promise<void>) {
     this.mainWindow = mainWindow;
+    this.createAddWindow = createAddWindow;
   }
 
   buildMenu(): Menu {
@@ -202,6 +205,13 @@ export default class MenuBuilder {
             accelerator: 'Ctrl+W',
             click: () => {
               this.mainWindow.close();
+            },
+          },
+          {
+            label: '&Add Entry',
+            accelerator: 'Ctrl+G',
+            click: () => {
+              this.createAddWindow();
             },
           },
           {

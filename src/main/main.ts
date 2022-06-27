@@ -9,6 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path, { join } from 'path';
+import { format } from 'url';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { readFile } from 'fs/promises';
 import { autoUpdater } from 'electron-updater';
@@ -25,9 +26,9 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let modalWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
-  console.log(arg);
   event.reply('ipc-example', 'App served by electron!');
 });
 
@@ -66,6 +67,52 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
+
+export async function createAddWindow() {
+  if (isDebug) {
+    await installExtensions();
+  }
+
+  const RESOURCES_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(__dirname, '../../assets');
+
+  const getAssetPath = (...paths: string[]): string => {
+    return path.join(RESOURCES_PATH, ...paths);
+  };
+  if (!mainWindow) throw Error('Main window not defined');
+  modalWindow = new BrowserWindow({
+    title: 'Add Entry',
+    modal: true,
+    parent: mainWindow,
+    icon: getAssetPath('icon.png'),
+    webPreferences: {
+      preload: app.isPackaged
+        ? path.join(__dirname, 'preload.js')
+        : path.join(__dirname, '../../.erb/dll/preload.js'),
+    },
+  });
+
+  const PORT = process.env.PORT || 1212;
+  modalWindow.loadURL(
+    isDebug
+      ? `http://localhost:${PORT}#/modal`
+      : format({
+          pathname: join(__dirname, 'index.html'),
+          hash: '/modal',
+          protocol: 'file:',
+          slashes: true,
+        })
+  );
+  // Handle garbage collection
+  modalWindow.on('close', () => {
+    modalWindow = null;
+  });
+
+  modalWindow.once('ready-to-show', () => {
+    modalWindow?.show();
+  });
+}
 
 const createWindow = async () => {
   if (isDebug) {
@@ -109,7 +156,7 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
+  const menuBuilder = new MenuBuilder(mainWindow, createAddWindow);
   menuBuilder.buildMenu();
 
   // Open urls in the user's browser
