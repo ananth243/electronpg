@@ -24,10 +24,6 @@ interface Data {
 
 const Landing = () => {
   const [data, setData] = useState<Data[]>([]);
-  // const addRef = useRef<HTMLUListElement>(null);
-  // const deleteRef = useRef<HTMLUListElement>(null);
-  // const updateRef = useRef<HTMLUListElement>(null);
-
   useEffect(() => {
     window.electron.ipcRenderer.sendMessage('get-data', []);
     window.electron.ipcRenderer.on('sent-data', (arg) => {

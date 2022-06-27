@@ -3,16 +3,11 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
-  Dialect,
   CreationOptional,
   DataTypes,
 } from 'sequelize';
 import pg from 'pg';
-
-const DB = process.env.DB || 'ircs';
-const USERNAME = process.env.DBUSERNAME || 'postgres';
-const PASSWORD = process.env.PASSWORD || 'root';
-const DIALECT = process.env.DIALECT as Dialect;
+import { DB, USERNAME, PASSWORD, DIALECT } from './keys';
 
 const sequelize =
   DIALECT === 'mysql'
